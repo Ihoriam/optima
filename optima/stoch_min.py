@@ -93,7 +93,7 @@ def swarm_opt(f, s, d, xmin=-10, xmax=10, tmax=50):
             gbest = i
     k = 0
     # оновлення стану рою
-    for t in range(tmax):
+    for _ in range(tmax):
         k += 1
         for i in range(0, s):
             for j in range(0, d):
@@ -130,50 +130,50 @@ def swarm_opt(f, s, d, xmin=-10, xmax=10, tmax=50):
     return (x_min, f_min, k)
 
 
-def wolf_opt(f, dim, Max_iter=100, lb=-5, ub=5, SearchAgents_no=50):
+def wolf_opt(f, d, t_max=100, lb=-5, ub=5, s=50):
     """Метод оптимізації стаєю вовків
 
     Args:
         f (function): функція
-        dim (int): кількість координат (розмірність)
-        Max_iter (int, optional): максимальна кількість ітерацій
+        d (int): кількість координат (розмірність)
+        t_max (int, optional): максимальна кількість ітерацій
         lb (int, optional): нижня границя
         ub (int, optional): верхня границя
-        SearchAgents_no (int, optional): кількість вовків у зграї
+        s (int, optional): кількість вовків у зграї
     Returns:
         list: список значень [координати мінімуму, значення функції в цій точці, кількість ітерацій]
     """
     # initialize alpha, beta, and delta_pos
-    Alpha_pos = np.zeros(dim)
+    Alpha_pos = np.zeros(d)
     Alpha_score = float("inf")
 
-    Beta_pos = np.zeros(dim)
+    Beta_pos = np.zeros(d)
     Beta_score = float("inf")
 
-    Delta_pos = np.zeros(dim)
+    Delta_pos = np.zeros(d)
     Delta_score = float("inf")
 
     if not isinstance(lb, list):
-        lb = [lb] * dim
+        lb = [lb] * d
     if not isinstance(ub, list):
-        ub = [ub] * dim
+        ub = [ub] * d
 
     # Initialize the positions of search agents
-    Positions = np.zeros((SearchAgents_no, dim))
-    for i in range(dim):
+    Positions = np.zeros((s, d))
+    for i in range(d):
         Positions[:, i] = np.random.uniform(
-            0, 1, SearchAgents_no) * (ub[i] - lb[i]) + lb[i]
+            0, 1, s) * (ub[i] - lb[i]) + lb[i]
 
     # Convergence_curve = np.zeros(Max_iter)
 
     # Main loop
     k = 0
-    for l in range(0, Max_iter):
+    for l in range(0, t_max):
         k += 1
-        for i in range(0, SearchAgents_no):
+        for i in range(0, s):
 
             # Return back the search agents that go beyond the boundaries of the search space
-            for j in range(dim):
+            for j in range(d):
                 Positions[i, j] = np.clip(Positions[i, j], lb[j], ub[j])
 
             # Calculate objective function for each search agent
@@ -198,11 +198,11 @@ def wolf_opt(f, dim, Max_iter=100, lb=-5, ub=5, SearchAgents_no=50):
                 Delta_score = fitness  # Update delta
                 Delta_pos = Positions[i, :].copy()
 
-        a = 2-l*((2)/Max_iter)  # a decreases linearly fron 2 to 0
+        a = 2-l*((2)/t_max)  # a decreases linearly fron 2 to 0
 
         # Update the Position of search agents including omegas
-        for i in range(0, SearchAgents_no):
-            for j in range(0, dim):
+        for i in range(0, s):
+            for j in range(0, d):
 
                 r1 = random()  # r1 is a random number in [0,1]
                 r2 = random()  # r2 is a random number in [0,1]
